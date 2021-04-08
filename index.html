@@ -171,6 +171,92 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/08/is-valid-BST/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Feyon">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feyon">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/08/is-valid-BST/" class="post-title-link" itemprop="url">is-valid-BST</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-08 19:45:36 / 修改时间：21:48:13" itemprop="dateCreated datePublished" datetime="2021-04-08T19:45:36+08:00">2021-04-08</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="预备知识"><a href="#预备知识" class="headerlink" title="预备知识"></a>预备知识</h2><ol>
+<li>二叉搜索树是指  <ol>
+<li>每个节点中的值必须大于（或等于）其左子树中的任何值。</li>
+<li>每个节点中的值必须大于（或小于）其左子树中的任何值。</li>
+</ol>
+</li>
+<li>二叉搜索树的中序遍历是有序的（从小到大）</li>
+</ol>
+<h2 id="1-暴力解法"><a href="#1-暴力解法" class="headerlink" title="1. 暴力解法"></a>1. 暴力解法</h2><p>先中序遍历得到“有序”序列，但检测序列是否真的有序。该想法直截了当，直接基于<code>BST</code>的特殊性质。但使用了额外的内存空间，对于有<code>n</code>个节点的二叉树，空间复杂度为<code>O(n)</code>，最坏需要遍历<code>两次</code>所有节点值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidBST</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    List&lt;Integer&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">    dfs(root, list);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(list.get(i) &lt;= list.get(i - <span class="number">1</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(TreeNode root, List&lt;Integer&gt; list)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    dfs(root.left, list);</span><br><span class="line">    list.add(root.val);</span><br><span class="line">    dfs(root.right, list);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-尝试提高效率"><a href="#2-尝试提高效率" class="headerlink" title="2. 尝试提高效率"></a>2. 尝试提高效率</h3><p>当要解决一个问题时，常常需要分步骤解决。就如暴力解法中一般，我们先拿到序列，然后再遍历。如果我们向压缩空间，那就不允许使用额外的内存空间来记录所有的中间值。这个时候，我们就可能会思考，我们是否可以再第一次遍历的适合就尝试进行比较呢？就像<code>插入排序</code>一般。<br>最简单的方法就是利用<strong>全局变量</strong>来记录参考值。此时空间复杂度降低到<code>O(1)</code>。<br>这里可以看出，当如果有个变量在每次递归中都需要使用到，不要犹豫，直接使用全局变量。不过，在实际过程，需要防止方法污染全局变量。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> smaller = Long.MIN_VALUE;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidBST</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> l = isValidBST(root.left);</span><br><span class="line">    <span class="keyword">if</span>(smaller &gt;= root.val) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    smaller = root.val;</span><br><span class="line">    <span class="keyword">boolean</span> r = isValidBST(root.right);</span><br><span class="line">    <span class="keyword">return</span> l &amp;&amp; r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-尝试常规遍历"><a href="#3-尝试常规遍历" class="headerlink" title="3. 尝试常规遍历"></a>3. 尝试常规遍历</h3><p>边界条件：  </p>
+<ol>
+<li>node is null, return true.</li>
+<li>single node，return true.</li>
+<li>left-child is larger than parent, return false.</li>
+<li>right-child is smaller than parent, return false.</li>
+</ol>
+<p>表达式：</p>
+<script type="math/tex; mode=display">
+    ans = L \; and \; R \; and \; (MinBound < val < MaxBound)</script><p>这里有两个未知变量，分别时当前节点的上边界<code>MaxBound</code>和下边界<code>MinBound</code>，需要通过<strong>参数传递</strong>进去，当前节点是无法获知的。既然要传递多个参数。向下递归时就要思考如何传参了。  </p>
+<ul>
+<li>根节点：由于根节点是单节点，一定符合。$val \subseteq (MIN, MAX)$</li>
+<li>左节点: 必须小于父节点，故 $val \subseteq (MIN, parent)$</li>
+<li>右节点：必须大于父节点，故 $val \subseteq (parent, MAX)$</li>
+<li>这里的 $(MIN, MAX)$ 一定是大于节点取值范围的，不然第二点将不符合。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidBST</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> dfs(root, Long.MIN_VALUE, Long.MAX_VALUE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dfs</span><span class="params">(TreeNode root, <span class="keyword">long</span> lower, <span class="keyword">long</span> upper)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> l = dfs(root.left, lower, root.val);</span><br><span class="line">    <span class="keyword">boolean</span> r = dfs(root.right, root.val, upper);</span><br><span class="line">    <span class="keyword">return</span> l &amp;&amp; r &amp;&amp; ((lower &lt; root.val) &amp;&amp; (root.val &lt; upper));</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/08/btree-search/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -196,7 +282,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-04-08 14:48:05 / 修改时间：15:23:48" itemprop="dateCreated datePublished" datetime="2021-04-08T14:48:05+08:00">2021-04-08</time>
+              <time title="创建时间：2021-04-08 14:48:05 / 修改时间：19:13:19" itemprop="dateCreated datePublished" datetime="2021-04-08T14:48:05+08:00">2021-04-08</time>
             </span>
 
           
@@ -210,7 +296,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          
+          <h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ol>
+<li>前序遍历</li>
+<li>后序遍历</li>
+<li>层序遍历</li>
+</ol>
+<h2 id="底料"><a href="#底料" class="headerlink" title="底料"></a>底料</h2><h3 id="路径问题"><a href="#路径问题" class="headerlink" title="路径问题"></a>路径问题</h3><ol>
+<li>获取根节点到某一结点的路径</li>
+<li>获取根到所有叶叶节点的路径</li>
+<li>树中的最长路径</li>
+<li>树中的最短路径</li>
+</ol>
+<h3 id="关系问题"><a href="#关系问题" class="headerlink" title="关系问题"></a>关系问题</h3><ol>
+<li>判断两个节点是否是<strong>亲兄弟</strong>节点</li>
+<li>判断两个节点是否是<strong>堂兄弟</strong>节点</li>
+<li>相同的树</li>
+<li>一棵树是另一棵树的子树</li>
+</ol>
+
       
     </div>
 
@@ -359,7 +462,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-08 14:55:12" itemprop="dateModified" datetime="2021-04-08T14:55:12+08:00">2021-04-08</time>
+                <time title="修改时间：2021-04-08 21:46:12" itemprop="dateModified" datetime="2021-04-08T21:46:12+08:00">2021-04-08</time>
               </span>
 
           
@@ -374,7 +477,7 @@
 
       
           <p>​二叉树中的深度优先搜素（DFS）包括三种形式，分别为前序遍历、中序遍历、后序遍历。每一种形式都有其应用场景，解决一个问题的首要任务，就是正确选择合适的遍历方式。</p>
-<h2 id="深度优先搜索"><a href="#深度优先搜索" class="headerlink" title="深度优先搜索"></a>深度优先搜索</h2><div class="table-container">
+<h2 id="深度优先遍历"><a href="#深度优先遍历" class="headerlink" title="深度优先遍历"></a>深度优先遍历</h2><div class="table-container">
 <table>
 <thead>
 <tr>
@@ -401,7 +504,7 @@
 <h3 id="前序遍历"><a href="#前序遍历" class="headerlink" title="前序遍历"></a>前序遍历</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">preorder</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// consumer current node.</span></span><br><span class="line">    preorder(root.left);</span><br><span class="line">    preorder(root.right);</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
 <h3 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">inorder</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    inorder(root.left);</span><br><span class="line">    <span class="comment">// consume current node.</span></span><br><span class="line">    inorder(root.left);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="后序遍历"><a href="#后序遍历" class="headerlink" title="后序遍历"></a>后序遍历</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postorder</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    postorder(root.left);</span><br><span class="line">    postorder(root.right);</span><br><span class="line">    <span class="comment">// use current node.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="广度优先搜素"><a href="#广度优先搜素" class="headerlink" title="广度优先搜素"></a>广度优先搜素</h2><p>主要利用队列进行处理。</p>
+<h2 id="广度优先遍历"><a href="#广度优先遍历" class="headerlink" title="广度优先遍历"></a>广度优先遍历</h2><p>主要利用队列进行处理。</p>
 <h3 id="不考虑层模板"><a href="#不考虑层模板" class="headerlink" title="不考虑层模板"></a>不考虑层模板</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">bfs</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    Queue&lt;TreeNode&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">    queue.add(root);</span><br><span class="line">    <span class="keyword">while</span>(!queue.empty()) &#123;</span><br><span class="line">        TreeNode p = queue.remove();</span><br><span class="line">        <span class="comment">// 处理节点,可以提前终止遍历</span></span><br><span class="line">        <span class="keyword">if</span>(p.left != <span class="keyword">null</span>) &#123;</span><br><span class="line">            queue.add(p.left);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(p.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">            queue.add(p.right);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <h3 id="考虑层模板"><a href="#考虑层模板" class="headerlink" title="考虑层模板"></a>考虑层模板</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">bfs</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    Queue&lt;TreeNode&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">    queue.add(root);</span><br><span class="line">    <span class="keyword">while</span>(!queue.empty()) &#123;</span><br><span class="line">        <span class="keyword">int</span> size = queue.size();</span><br><span class="line">        <span class="comment">// 利用同一层的节点进行处理</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">            <span class="comment">// 处理节点,可以提前终止遍历</span></span><br><span class="line">            TreeNode p = queue.remove();</span><br><span class="line">            <span class="keyword">if</span>(p.left != <span class="keyword">null</span>) &#123;</span><br><span class="line">                queue.add(p.left);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(p.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">                queue.add(p.right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">       </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
       
@@ -486,14 +589,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

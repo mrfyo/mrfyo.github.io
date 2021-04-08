@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-feyon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-feyon.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="预备知识 二叉搜索树是指   每个节点中的值必须大于（或等于）其左子树中的任何值。 每个节点中的值必须大于（或小于）其左子树中的任何值。   二叉搜索树的中序遍历是有序的（从小到大）  1. 暴力解法先中序遍历得到“有序”序列，但检测序列是否真的有序。该想法直截了当，直接基于BST的特殊性质。但使用了额外的内存空间，对于有n个节点的二叉树，空间复杂度为O(n)，最坏需要遍历两次所有节点值。 123">
+<meta property="og:type" content="article">
+<meta property="og:title" content="is-valid-BST">
+<meta property="og:url" content="http://example.com/2021/04/08/is-valid-BST/index.html">
+<meta property="og:site_name" content="Feyon">
+<meta property="og:description" content="预备知识 二叉搜索树是指   每个节点中的值必须大于（或等于）其左子树中的任何值。 每个节点中的值必须大于（或小于）其左子树中的任何值。   二叉搜索树的中序遍历是有序的（从小到大）  1. 暴力解法先中序遍历得到“有序”序列，但检测序列是否真的有序。该想法直截了当，直接基于BST的特殊性质。但使用了额外的内存空间，对于有n个节点的二叉树，空间复杂度为O(n)，最坏需要遍历两次所有节点值。 123">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-08T11:45:36.000Z">
+<meta property="article:modified_time" content="2021-04-08T13:48:13.270Z">
+<meta property="article:author" content="Feyon">
+<meta property="article:tag" content="BST">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/04/08/is-valid-BST/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>is-valid-BST | Feyon</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?d70e3c5ed1d698bba6e00a7b2e4febe2";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Feyon</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/08/is-valid-BST/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Feyon">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Feyon">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          is-valid-BST
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-08 19:45:36 / 修改时间：21:48:13" itemprop="dateCreated datePublished" datetime="2021-04-08T19:45:36+08:00">2021-04-08</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="预备知识"><a href="#预备知识" class="headerlink" title="预备知识"></a>预备知识</h2><ol>
+<li>二叉搜索树是指  <ol>
+<li>每个节点中的值必须大于（或等于）其左子树中的任何值。</li>
+<li>每个节点中的值必须大于（或小于）其左子树中的任何值。</li>
+</ol>
+</li>
+<li>二叉搜索树的中序遍历是有序的（从小到大）</li>
+</ol>
+<h2 id="1-暴力解法"><a href="#1-暴力解法" class="headerlink" title="1. 暴力解法"></a>1. 暴力解法</h2><p>先中序遍历得到“有序”序列，但检测序列是否真的有序。该想法直截了当，直接基于<code>BST</code>的特殊性质。但使用了额外的内存空间，对于有<code>n</code>个节点的二叉树，空间复杂度为<code>O(n)</code>，最坏需要遍历<code>两次</code>所有节点值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidBST</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    List&lt;Integer&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">16</span>);</span><br><span class="line">    dfs(root, list);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(list.get(i) &lt;= list.get(i - <span class="number">1</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dfs</span><span class="params">(TreeNode root, List&lt;Integer&gt; list)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    dfs(root.left, list);</span><br><span class="line">    list.add(root.val);</span><br><span class="line">    dfs(root.right, list);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-尝试提高效率"><a href="#2-尝试提高效率" class="headerlink" title="2. 尝试提高效率"></a>2. 尝试提高效率</h3><p>当要解决一个问题时，常常需要分步骤解决。就如暴力解法中一般，我们先拿到序列，然后再遍历。如果我们向压缩空间，那就不允许使用额外的内存空间来记录所有的中间值。这个时候，我们就可能会思考，我们是否可以再第一次遍历的适合就尝试进行比较呢？就像<code>插入排序</code>一般。<br>最简单的方法就是利用<strong>全局变量</strong>来记录参考值。此时空间复杂度降低到<code>O(1)</code>。<br>这里可以看出，当如果有个变量在每次递归中都需要使用到，不要犹豫，直接使用全局变量。不过，在实际过程，需要防止方法污染全局变量。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> smaller = Long.MIN_VALUE;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidBST</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> l = isValidBST(root.left);</span><br><span class="line">    <span class="keyword">if</span>(smaller &gt;= root.val) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    smaller = root.val;</span><br><span class="line">    <span class="keyword">boolean</span> r = isValidBST(root.right);</span><br><span class="line">    <span class="keyword">return</span> l &amp;&amp; r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-尝试常规遍历"><a href="#3-尝试常规遍历" class="headerlink" title="3. 尝试常规遍历"></a>3. 尝试常规遍历</h3><p>边界条件：  </p>
+<ol>
+<li>node is null, return true.</li>
+<li>single node，return true.</li>
+<li>left-child is larger than parent, return false.</li>
+<li>right-child is smaller than parent, return false.</li>
+</ol>
+<p>表达式：</p>
+<script type="math/tex; mode=display">
+    ans = L \; and \; R \; and \; (MinBound < val < MaxBound)</script><p>这里有两个未知变量，分别时当前节点的上边界<code>MaxBound</code>和下边界<code>MinBound</code>，需要通过<strong>参数传递</strong>进去，当前节点是无法获知的。既然要传递多个参数。向下递归时就要思考如何传参了。  </p>
+<ul>
+<li>根节点：由于根节点是单节点，一定符合。$val \subseteq (MIN, MAX)$</li>
+<li>左节点: 必须小于父节点，故 $val \subseteq (MIN, parent)$</li>
+<li>右节点：必须大于父节点，故 $val \subseteq (parent, MAX)$</li>
+<li>这里的 $(MIN, MAX)$ 一定是大于节点取值范围的，不然第二点将不符合。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidBST</span><span class="params">(TreeNode root)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> dfs(root, Long.MIN_VALUE, Long.MAX_VALUE);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">dfs</span><span class="params">(TreeNode root, <span class="keyword">long</span> lower, <span class="keyword">long</span> upper)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">boolean</span> l = dfs(root.left, lower, root.val);</span><br><span class="line">    <span class="keyword">boolean</span> r = dfs(root.right, root.val, upper);</span><br><span class="line">    <span class="keyword">return</span> l &amp;&amp; r &amp;&amp; ((lower &lt; root.val) &amp;&amp; (root.val &lt; upper));</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/BST/" rel="tag"># BST</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/08/btree-search/" rel="prev" title="btree-search">
+      <i class="fa fa-chevron-left"></i> btree-search
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E5%A4%87%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">预备知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%9A%B4%E5%8A%9B%E8%A7%A3%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">1. 暴力解法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%B0%9D%E8%AF%95%E6%8F%90%E9%AB%98%E6%95%88%E7%8E%87"><span class="nav-number">2.1.</span> <span class="nav-text">2. 尝试提高效率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B0%9D%E8%AF%95%E5%B8%B8%E8%A7%84%E9%81%8D%E5%8E%86"><span class="nav-number">2.2.</span> <span class="nav-text">3. 尝试常规遍历</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Feyon"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Feyon</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/k3206" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;k3206" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Feyon</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
